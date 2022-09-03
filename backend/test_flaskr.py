@@ -42,6 +42,11 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["success"], True)
         self.assertTrue(data["categories"])
 
+    def test_405_for_category_deletion_not_allowed(self):
+        res = self.client().delete("/categories")
+
+        self.assertEqual(res.status_code, 405)
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":

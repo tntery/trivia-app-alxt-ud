@@ -8,6 +8,17 @@ from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
 
+def paginate_resources(request, selection):
+    # paginate resources
+    page = request.args.get("page", 1, type=int)
+    start = (page - 1) * QUESTIONS_PER_PAGE
+    end = start + QUESTIONS_PER_PAGE
+
+    resources = [book.format() for book in selection]
+    current_resource = resources[start:end]
+
+    return current_resource
+
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__)
@@ -38,17 +49,17 @@ def create_app(test_config=None):
     for all available categories.
     """
     @app.route("/categories")
-    def retrieve_categories():
+    def retrieve_categories(methods=["GET"]):
         categories = Category.query.order_by(Category.id).all()
+        categories_list = [category.format() for category in categories]
 
-        if len(categories) == 0:
+        if len(categories_list) == 0:
             abort(404)
 
         return jsonify(
             {
                 "success": True,
-                "categories": current_categories,
-                "total_categories": len(Book.query.all()),
+                "categories": categories_list,
             }
         )
 
