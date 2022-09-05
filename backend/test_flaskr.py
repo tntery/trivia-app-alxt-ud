@@ -15,7 +15,8 @@ class TriviaTestCase(unittest.TestCase):
         self.app = create_app()
         self.client = self.app.test_client
         self.database_name = "trivia_test"
-        self.database_path = "postgresql://{}:{}@{}/{}".format("student", "student", "localhost:5432", self.database_name)
+        # self.database_path = "postgresql://{}:{}@{}/{}".format("student", "student", "localhost:5432", self.database_name)
+        self.database_path = os.environ['TRIVIA_APP_DB_PATH']
         setup_db(self.app, self.database_path)
 
         self.new_question = {
@@ -151,7 +152,7 @@ class TriviaTestCase(unittest.TestCase):
             "/quizzes", 
             json={
                 'previous_questions': [], 
-                'quiz_category':{"type":"History", "id":"4"}
+                'quiz_category':'4',
                 }
             )
         data = json.loads(res.data)

@@ -74,11 +74,8 @@ def create_app(test_config=None):
     for all available categories.
     """
     @app.route("/categories")
-    def retrieve_categories(methods=["GET"]):
-        # 
-        print('ENVS')
-        print(os.environ.get('TRIVIA_APP_DB_PATH'))
-        # 
+    def retrieve_categories():
+
         categories = Category.query.order_by(Category.id).all()
 
         # Convert sqlachemy queryset to python dictionary
@@ -274,14 +271,12 @@ def create_app(test_config=None):
         previous_questions = body.get('previous_questions', None)
         quiz_category = body.get('quiz_category', None)
 
-        print(body)
-
         try:
             # get all questions or by category questions if provided
-            if quiz_category['id'] == 0:
+            if quiz_category == 0:
                 questions = Question.query.all()
             else:
-                questions = Question.query.filter(Question.category == quiz_category['id']).all()
+                questions = Question.query.filter(Question.category == quiz_category).all()
 
             # shuffle questions
             questions_list = [question.format() for question in questions]
@@ -300,7 +295,7 @@ def create_app(test_config=None):
 
             })
         except:
-            abort(422)
+            abort(400)
 
 
     """
@@ -308,6 +303,13 @@ def create_app(test_config=None):
     Create error handlers for all expected errors
     including 404 and 422.
     """
+    @app.errorhandler(400)
+    def bad_request(error):
+        return (
+            jsonify({"success": False, "error": 400, "message": "bad request"}),
+            400,
+        )
+
     @app.errorhandler(404)
     def not_found(error):
         return (
@@ -328,10 +330,6 @@ def create_app(test_config=None):
             jsonify({"success": False, "error": 422, "message": "unprocessable"}),
             422,
         )
-
-    @app.errorhandler(400)
-    def bad_request(error):
-        return jsonify({"success": False, "error": 400, "message": "bad request"}), 400
 
     @app.errorhandler(500)
     def server_error(error):
